@@ -1,0 +1,4 @@
+dataset/kickstarter_data_raw.json
+dataset/kickstarter_data_transformed.csv
+dataset/kickstarter_data_derived.csv
+dataset/kickstarter_data_pruned.csv
