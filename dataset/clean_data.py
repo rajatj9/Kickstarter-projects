@@ -50,7 +50,7 @@ final_columns = ['parent_category', 'funding_duration_days', 'pre_funding_durati
         'currency', 'country', 'location.state', 'location.type', 
         'spotlight', 'staff_pick', 'is_starrable', 'creator_has_slug', 'disable_communication',
         'blurb_length', 'blurb_word_count', 'name_length', 'name_word_count', 
-        'usd_goal', 'usd_pledged', 'state', 'state_changed_at', 'backers_count']
+        'usd_goal', 'usd_pledged', 'state', 'backers_count']
 
 #################################### Step 1: Convert from ridiculously long JSON mess into clean csv file ####################################
 def json_to_csv(input_file, output_file):
