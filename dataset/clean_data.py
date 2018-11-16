@@ -47,8 +47,8 @@ selected_columns = ['backers_count', 'blurb', 'category.name', 'category.slug', 
 
 # Final columns we will use in data analysis
 final_columns = ['parent_category', 'funding_duration_days', 'pre_funding_duration_days', 'launch_month', 'deadline_month',
-        'currency', 'country', 'location.state', 'location.type', 
-        'spotlight', 'staff_pick', 'is_starrable', 'creator_has_slug', 'disable_communication',
+        'country', 'location.state', 'location.type', 
+        'spotlight', 'staff_pick', 'is_starrable', 'creator_has_slug',
         'blurb_length', 'blurb_word_count', 'name_length', 'name_word_count', 
         'usd_goal', 'usd_pledged', 'state', 'backers_count']
 
@@ -182,6 +182,8 @@ def final_column(input_file, output_file):
     print(input_file, 'successfully opened.')
     df = df[final_columns]
     df.dropna(inplace=True)
+    df = df[df.state != 'suspended']
+    df = df[df.state != 'live']
     print(df.head)
     df.to_csv(output_file, index=False)
     print('Columns dropped in', time.time() - start, 'seconds')
