@@ -19,6 +19,12 @@ for (i in 1:nrow(data)){
 data[, 6] = sapply(data[, 6], as.factor)
 data$launch_month = as.factor(data$launch_month)
 data$deadline_month = as.factor(data$deadline_month)
+data$country = as.numeric(as.factor(data$country))
+data$location.type = as.numeric(as.factor(data$location.type))
+data$staff_pick = as.numeric(as.factor(data$staff_pick))
+data$is_starrable = as.numeric(as.factor(data$is_starrable))
+data$creator_has_slug = as.numeric(as.factor(data$creator_has_slug))
+
 str(data)
 summary(data)
 
@@ -116,28 +122,20 @@ CrossTable(data_test$state, NB_pred,
            prop.chisq = FALSE, prop.c = FALSE, 
            prop.r = FALSE, dnn = c('actual state', 'predicted state')) 
 
-#neuralnet
-library(neuralnet)
-library(nnet)
-scl <- function(x){ (x - min(x))/(max(x) - min(x)) }
-data$parent_category = as.numeric(factor(data$parent_category))
+str(data)
+
+#xgboost
+library(xgboost)
+XG = xgboost(data = as.matrix(data_test[,-c(2,5,9,18,17,16)]), label = data_test$state, nrounds = 10)
+
+# Predicting the Test set results
+y_pred = predict(classifier, newdata = as.matrix(test_set[-11]))
+y_pred = (y_pred >= 0.5)
+
+# Making the Confusion Matrix
+cm = table(test_set[, 11], y_pred)
 
 
-
-
-data$location.type = as.numeric(factor(data$location.type))
-data$creator_has_slug = as.numeric(factor(data$creator_has_slug))
-data$funding_duration_days = scl(data$funding_duration_days)
-data$pre_funding_duration_days = scl(data$funding_duration_days)
-data$blurb_length = scl(data$blurb_length)
-data$blurb_word_count = scl(data$blurb_word_count)
-data$name_length = scl(data$name_length)
-data$name_word_count = scl(data$name_word_count)
-data$usd_goal = scl(data$usd_goal)
-data$usd_pledged = scl(data$usd_pledged)
-data$backers_count = scl(data$backers_count)
-nn = neuralnet(state~parent_category+pre_funding_duration_days+launch_month+country+staff_pick+location.type+creator_has_slug+blurb_length+blurb_word_count+name_word_count+usd_goal+name_length,
-                data = data_train)
 
 
 #svm
