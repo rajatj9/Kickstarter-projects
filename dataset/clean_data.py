@@ -1,55 +1,55 @@
-import json 
+import json
 import numpy as np
-import pandas as pd 
+import pandas as pd
 from pandas.io.json import json_normalize
 import time
 import sys
 from datetime import datetime
 
 # All columns from original dataset
-all_columns = ['backers_count', 'blurb', 'category.color', 'category.id', 'category.name', 'category.parent_id', 
-        'category.position', 'category.slug', 'category.urls.web.discover', 'converted_pledged_amount', 'country', 'created_at', 
-        'creator.avatar.medium', 'creator.avatar.small', 'creator.avatar.thumb', 'creator.chosen_currency', 'creator.id', 
-        'creator.is_registered', 'creator.name', 'creator.slug', 'creator.urls.api.user', 'creator.urls.web.user', 'currency', 
-        'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'fx_rate', 'goal', 
-        'id', 'is_starrable', 'launched_at', 'location.country', 'location.displayable_name', 'location.id', 'location.is_root', 
-        'location.localized_name', 'location.name', 'location.short_name', 'location.slug', 'location.state', 'location.type', 
-        'location.urls.api.nearby_projects', 'location.urls.web.discover', 'location.urls.web.location', 'name', 'photo.1024x576', 
-        'photo.1536x864', 'photo.ed', 'photo.full', 'photo.key', 'photo.little', 'photo.med', 'photo.small', 'photo.thumb', 
-        'pledged', 'profile.background_color', 'profile.background_image_opacity', 'profile.blurb', 
-        'profile.feature_image_attributes.image_urls.baseball_card', 'profile.feature_image_attributes.image_urls.default', 
-        'profile.id', 'profile.link_background_color', 'profile.link_text', 'profile.link_text_color', 'profile.link_url', 
-        'profile.name', 'profile.project_id', 'profile.should_show_feature_image_section', 'profile.show_feature_image', 
-        'profile.state', 'profile.state_changed_at', 'profile.text_color', 'slug', 'source_url', 'spotlight', 'staff_pick', 
-        'state', 'state_changed_at', 'static_usd_rate', 'urls.web.project', 'urls.web.rewards', 'usd_pledged', 'usd_type', 
-        'profile.background_image_attributes.id', 'profile.background_image_attributes.image_urls.baseball_card', 
+all_columns = ['backers_count', 'blurb', 'category.color', 'category.id', 'category.name', 'category.parent_id',
+        'category.position', 'category.slug', 'category.urls.web.discover', 'converted_pledged_amount', 'country', 'created_at',
+        'creator.avatar.medium', 'creator.avatar.small', 'creator.avatar.thumb', 'creator.chosen_currency', 'creator.id',
+        'creator.is_registered', 'creator.name', 'creator.slug', 'creator.urls.api.user', 'creator.urls.web.user', 'currency',
+        'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'fx_rate', 'goal',
+        'id', 'is_starrable', 'launched_at', 'location.country', 'location.displayable_name', 'location.id', 'location.is_root',
+        'location.localized_name', 'location.name', 'location.short_name', 'location.slug', 'location.state', 'location.type',
+        'location.urls.api.nearby_projects', 'location.urls.web.discover', 'location.urls.web.location', 'name', 'photo.1024x576',
+        'photo.1536x864', 'photo.ed', 'photo.full', 'photo.key', 'photo.little', 'photo.med', 'photo.small', 'photo.thumb',
+        'pledged', 'profile.background_color', 'profile.background_image_opacity', 'profile.blurb',
+        'profile.feature_image_attributes.image_urls.baseball_card', 'profile.feature_image_attributes.image_urls.default',
+        'profile.id', 'profile.link_background_color', 'profile.link_text', 'profile.link_text_color', 'profile.link_url',
+        'profile.name', 'profile.project_id', 'profile.should_show_feature_image_section', 'profile.show_feature_image',
+        'profile.state', 'profile.state_changed_at', 'profile.text_color', 'slug', 'source_url', 'spotlight', 'staff_pick',
+        'state', 'state_changed_at', 'static_usd_rate', 'urls.web.project', 'urls.web.rewards', 'usd_pledged', 'usd_type',
+        'profile.background_image_attributes.id', 'profile.background_image_attributes.image_urls.baseball_card',
         'profile.background_image_attributes.image_urls.default', 'profile.feature_image_attributes.id']
 
 # Columns preserved after first round of transforming data
-retained_columns = ['backers_count', 'blurb', 'category.color', 'category.id', 'category.name', 'category.parent_id', 
-        'category.position', 'category.slug', 'converted_pledged_amount', 'country', 'created_at', 
-        'creator.chosen_currency', 'creator.id', 'creator.is_registered', 'creator.name', 'creator.slug', 'currency', 
-        'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'fx_rate', 'goal', 
-        'id', 'is_starrable', 'launched_at', 'location.country', 'location.displayable_name', 'location.id', 'location.is_root', 
-        'location.localized_name', 'location.name', 'location.short_name', 'location.slug', 'location.state', 'location.type', 
-        'name', 'pledged', 'profile.background_color', 'profile.background_image_opacity', 'profile.blurb', 
-        'profile.id', 'profile.link_background_color', 'profile.link_text', 'profile.link_text_color', 'profile.link_url', 
-        'profile.name', 'profile.project_id', 'profile.should_show_feature_image_section', 'profile.show_feature_image', 
-        'profile.state', 'profile.state_changed_at', 'profile.text_color', 'slug', 'spotlight', 'staff_pick', 
+retained_columns = ['backers_count', 'blurb', 'category.color', 'category.id', 'category.name', 'category.parent_id',
+        'category.position', 'category.slug', 'converted_pledged_amount', 'country', 'created_at',
+        'creator.chosen_currency', 'creator.id', 'creator.is_registered', 'creator.name', 'creator.slug', 'currency',
+        'currency_symbol', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'fx_rate', 'goal',
+        'id', 'is_starrable', 'launched_at', 'location.country', 'location.displayable_name', 'location.id', 'location.is_root',
+        'location.localized_name', 'location.name', 'location.short_name', 'location.slug', 'location.state', 'location.type',
+        'name', 'pledged', 'profile.background_color', 'profile.background_image_opacity', 'profile.blurb',
+        'profile.id', 'profile.link_background_color', 'profile.link_text', 'profile.link_text_color', 'profile.link_url',
+        'profile.name', 'profile.project_id', 'profile.should_show_feature_image_section', 'profile.show_feature_image',
+        'profile.state', 'profile.state_changed_at', 'profile.text_color', 'slug', 'spotlight', 'staff_pick',
         'state', 'state_changed_at', 'static_usd_rate', 'urls.web.project', 'usd_pledged', 'usd_type']
 
 # Selected columns from transformed data
-selected_columns = ['backers_count', 'blurb', 'category.name', 'category.slug', 'converted_pledged_amount', 'country', 'created_at', 
-        'creator.slug', 'currency', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'fx_rate', 'goal', 
-        'id', 'is_starrable', 'launched_at', 'location.country', 'location.displayable_name', 'location.is_root', 
-        'location.short_name', 'location.slug', 'location.state', 'location.type', 
+selected_columns = ['backers_count', 'blurb', 'category.name', 'category.slug', 'converted_pledged_amount', 'country', 'created_at',
+        'creator.slug', 'currency', 'currency_trailing_code', 'current_currency', 'deadline', 'disable_communication', 'fx_rate', 'goal',
+        'id', 'is_starrable', 'launched_at', 'location.country', 'location.displayable_name', 'location.is_root',
+        'location.short_name', 'location.slug', 'location.state', 'location.type',
         'name', 'pledged', 'spotlight', 'staff_pick', 'state', 'state_changed_at', 'static_usd_rate', 'urls.web.project', 'usd_pledged']
 
 # Final columns we will use in data analysis
 final_columns = ['parent_category', 'funding_duration_days', 'pre_funding_duration_days', 'launch_month', 'deadline_month',
-        'country', 'location.state', 'location.type', 
+        'country', 'location.state', 'location.type',
         'spotlight', 'staff_pick', 'is_starrable', 'creator_has_slug',
-        'blurb_length', 'blurb_word_count', 'name_length', 'name_word_count', 
+        'blurb_length', 'blurb_word_count', 'name_length', 'name_word_count',
         'usd_goal', 'usd_pledged', 'state', 'backers_count']
 
 #################################### Step 1: Convert from ridiculously long JSON mess into clean csv file ####################################
@@ -65,7 +65,7 @@ def json_to_csv(input_file, output_file):
         df = df[retained_columns]
         df.to_csv(output_file, index=False)
         df = df[0:0]
-        
+
         # Read in remaining lines and write them to file one by one (slow, but consistent and secure in case of interrupt. Also it's better than keeping 1GB+ data in memory)
         count = 1
         batch = 100
@@ -190,6 +190,9 @@ def final_column(input_file, output_file):
     return
 
 if __name__ == "__main__":
+    for i in all_columns:
+        if(i not in selected_columns):
+            print(i)       
     raw_data = 'kickstarter_data_raw.json'
     transformed_data = 'kickstarter_data_transformed.csv'
     pruned_data = 'kickstarter_data_pruned.csv'
